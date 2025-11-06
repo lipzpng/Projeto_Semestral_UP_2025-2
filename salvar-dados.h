@@ -2,64 +2,72 @@
 #include <stdlib.h>
 #include <string.h>
 
-// Função para salvar dados em um arquivo usando ponteiros e alocação dinâmica
-void salvarDados(const char *caminhoArquivo, const char *entrada) {
-    // Ponteiro para o arquivo
-    FILE *arquivo;
+// Estrutura representando um "array associativo"
+typedef struct {
+    const char *nome;
+    const char *cpf;
+    int idade;
+} Dados;
 
-    // Abre o arquivo em modo append (cria se não existir)
-    arquivo = fopen(caminhoArquivo, "a");
-    if (arquivo == NULL) {
-        perror("Erro ao abrir o arquivo");
+// Enum representando os tipos de arquivo possíveis
+typedef enum { CLIENTES, PRODUTOS, PEDIDOS } Arquivos;
+
+// Função que mapeia o enum para o caminho real do arquivo
+const char *obterCaminhoArquivo(Arquivos tipo) {
+    switch (tipo) {
+        case CLIENTES:
+            return "clientes.txt";
+        case PRODUTOS:
+            return "produtos.txt";
+        case PEDIDOS:
+            return "pedidos.txt";
+        default:
+            return NULL;
+    }
+}
+
+void salvarDados(Arquivos tipoArquivo, const Dados *dados) {
+    if (!dados || !dados->nome || !dados->cpf) {
+        fprintf(stderr, "Parâmetros inválidos em salvarDados.\n");
         return;
     }
 
-    // Alocação dinâmica para armazenar uma cópia dos dados
-    char *dados = (char *) malloc((strlen(entrada) + 1) * sizeof(char));
-    if (dados == NULL) {
+    const char *caminhoArquivo = obterCaminhoArquivo(tipoArquivo);
+    if (!caminhoArquivo) {
+        fprintf(stderr, "Tipo de arquivo inválido.\n");
+        return;
+    }
+
+    FILE *arquivo = fopen(caminhoArquivo, "a"); // cria se não existir
+    if (!arquivo) {
+        perror("Erro ao abrir/criar arquivo");
+        return;
+    }
+
+    // Monta dinamicamente a linha "nome;cpf;idade\n"
+    const size_t tamNome = strlen(dados->nome); // pega o tamanho do nome
+    const size_t tamCpf  = strlen(dados->cpf);
+
+    // Converte o número da idade em string e descobre quantos caracteres ela tem.
+    char idadeBuffer[16]; // Buffer para transferir a idade INT para idade CHAR
+    const int idadeLengh = snprintf(idadeBuffer, sizeof(idadeBuffer), "%d", dados->idade); // snprintf() escrever o valor int para char no buffer. Retorna o numero de caracteres inseridos sem contar o \0.
+
+    //                                ;            ;                       \n  \0
+    const size_t tamLinha = tamNome + 1 + tamCpf + 1 + (size_t)idadeLengh + 1 + 1; // Calcula o tamanho total da linha que será gravada
+
+    char *linha = (char *)malloc(tamLinha);
+    if (!linha) {
         perror("Erro ao alocar memória");
         fclose(arquivo);
         return;
     }
 
-    // Copia a string de entrada para a memória alocada
-    strcpy(dados, entrada);
+    snprintf(linha, tamLinha, "%s;%s;%d\n", dados->nome, dados->cpf, dados->idade);
 
-    // Escreve os dados no arquivo
-    if (fputs(dados, arquivo) == EOF) {
+    if (fputs(linha, arquivo) == EOF) {
         perror("Erro ao escrever no arquivo");
-    } else {
-        printf("Dados salvos com sucesso em '%s'\n", caminhoArquivo);
     }
 
-    // Libera a memória alocada
-    free(dados);
-
-    // Fecha o arquivo
+    free(linha);
     fclose(arquivo);
 }
-
-// Exemplo de uso
-int main() {
-    char *arquivo = "dados.txt";
-
-    // Cria dinamicamente o conteúdo
-    char *conteudo = (char *) malloc(100 * sizeof(char));
-    if (conteudo == NULL) {
-        perror("Erro ao alocar memória para o conteúdo");
-        return 1;
-    }
-
-    // Lê dados do usuário
-    printf("Digite o texto que deseja salvar: ");
-    fgets(conteudo, 100, stdin); // lê até 99 caracteres (reserva 1 para '\0')
-
-    // Chama a função para salvar
-    salvarDados(arquivo, conteudo);
-
-    // Libera a memória usada
-    free(conteudo);
-
-    return 0;
-}
-''

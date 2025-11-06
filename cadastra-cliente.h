@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#include "salvar-dados.h"
 
 #define NUM_CLIENTE 10
 
@@ -38,13 +39,13 @@ void processaCliente(Campo campo) {
                 printf("\nDigite o nome do cliente: ");
 
                 if (scanf(" %255[^\n]", cliente[i].nome) != 1) {
-                    puts("Entrada inválida. Tente novamente.");
+                    puts("Entrada invï¿½lida. Tente novamente.");
                     continue;
                 }
 
                 size_t len = strlen(cliente[i].nome);
                 if (len == 0) {
-                    printf("\nNome não pode ser vazio!\n\n");
+                    printf("\nNome nï¿½o pode ser vazio!\n\n");
                     continue;
                 }
                 loop = 0;
@@ -93,6 +94,8 @@ int cadastraCliente(void) {
         processaCliente(NOME);
         processaCliente(CPF);
         processaCliente(IDADE);
+
+        salvarDados("clientes.csv", &cliente[i]);
 
         i++;
 
