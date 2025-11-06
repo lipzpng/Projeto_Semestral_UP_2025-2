@@ -39,8 +39,6 @@ void processaCliente(Campo campo) {
 
                 if (scanf(" %255[^\n]", cliente[i].nome) != 1) {
                     puts("Entrada inv�lida. Tente novamente.");
-                    // // limpa possível lixo até nova linha
-                    // int c; while ((c = getchar()) != '\n' && c != EOF) {}
                     continue;
                 }
 
