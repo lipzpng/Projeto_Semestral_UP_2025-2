@@ -9,9 +9,9 @@
 #define MAX_PRODUTOS 50
 
 typedef struct {
-int id;
-char nome[100];
-float preco;
+ int id;
+ char nome[100];
+ float preco;
 }
 Produto;
 Produto produtos[MAX_PRODUTOS];
@@ -19,14 +19,14 @@ int totalProdutos = 0;
 
 void listaProdutos(){
   system("cls");
-printf("---Lista de Produtos---\n");
-if (totalProdutos == 0){
-printf("Nenhum produto cadastrado.\n");
-}else {
-printf("ID | Nome\t\t\t|Preco\n");
+  printf("---Lista de Produtos---\n");
+  if (totalProdutos == 0){
+    printf("Nenhum produto cadastrado.\n");
+} else {
+    printf("ID | Nome\t\t\t|Preco\n");
 printf("---------------------\n");
-for (int k = 0; k < totalProdutos; k++){
-printf("%-2d | %-20s | R$ %.2f\n", produtos[k].preco);
+  for (int k = 0; k < totalProdutos; k++){
+    printf("%-2d | %-20s | R$ %.2f\n", produtos[k].preco);
 }
 }
 printf("\n\nPrecione Enter para continuar...");
@@ -39,12 +39,12 @@ getchar();
 
 void cadastraProduto(){
   system("cls");
-printf("---Cadastrar novo Produto---\n");
+  printf("---Cadastrar novo Produto---\n");
 
 if (totalProdutos >= MAX_PRODUTOS){
-printf("Limite maximo de produtos atingido!\n");
-sleep(2);
-return;
+  printf("Limite maximo de produtos atingido!\n");
+  sleep(2);
+  return;
 }
 
 produtos[totalProdutos].id = totalProdutos;
