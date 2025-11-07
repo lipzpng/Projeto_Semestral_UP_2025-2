@@ -27,7 +27,7 @@ void listaProdutos(){
 printf("---------------------\n");
   for (int k = 0; k < totalProdutos; k++){
     printf("%-2d | %-20s | R$ %.2f\n", produtos[k].preco);
-}
+  }
 }
 printf("\n\nPrecione Enter para continuar...");
 
