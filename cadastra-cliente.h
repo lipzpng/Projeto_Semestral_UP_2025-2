@@ -5,9 +5,11 @@
 #define NUM_CLIENTE 10
 
 typedef struct{
+    int id;
     char nome[256]; // 255 chars + '\0'
     char cpf[15]; // "000.000.000-00" -> 14 + '\0'
     int idade;
+    char ativo; // S|N
 }Cliente;
 
 Cliente cliente[NUM_CLIENTE];
@@ -38,7 +40,7 @@ void processaCliente(Campo campo) {
                 printf("\nDigite o nome do cliente: ");
 
                 if (scanf(" %255[^\n]", cliente[i].nome) != 1) {
-                    puts("Entrada inválida. Tente novamente.");
+                    puts("Entrada invï¿½lida. Tente novamente.");
                     // // limpa possÃ­vel lixo atÃ© nova linha
                     // int c; while ((c = getchar()) != '\n' && c != EOF) {}
                     continue;
@@ -46,7 +48,7 @@ void processaCliente(Campo campo) {
 
                 size_t len = strlen(cliente[i].nome);
                 if (len == 0) {
-                    printf("\nNome não pode ser vazio!\n\n");
+                    printf("\nNome nï¿½o pode ser vazio!\n\n");
                     continue;
                 }
                 loop = 0;
