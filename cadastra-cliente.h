@@ -6,9 +6,11 @@
 #define NUM_CLIENTE 10
 
 typedef struct{
-    char nome[256]; // 255 chars + '\0'
-    char cpf[15]; // "000.000.000-00" -> 14 + '\0'
-    int idade;
+    int id_Cliente;
+    char nome_Cliente[256]; // 255 chars + '\0'
+    char cpf_Cliente[15]; // "000.000.000-00" -> 14 + '\0'
+    int idade_Cliente;
+    char ativo_Cliente; // 'S'|'N'
 }Cliente;
 
 Cliente cliente[NUM_CLIENTE];
@@ -16,16 +18,16 @@ Cliente cliente[NUM_CLIENTE];
 int i = 0, loop = 1;
 typedef enum { NOME, CPF, IDADE } Campo;
 
-static int validaCpf(const char *s) { // formato esperado: 000.000.000-00 (14 chars)
+static int validaCpf(const char *cpf) { // formato esperado: 000.000.000-00 (14 chars)
     int idx;
-    if (strlen(s) != 14) return 0;
+    if (strlen(cpf) != 14) return 0;
     for (idx = 0; idx < 14; idx++) {
         if (idx == 3 || idx == 7) {
-            if (s[idx] != '.') return 0;
+            if (cpf[idx] != '.') return 0;
         } else if (idx == 11) {
-            if (s[idx] != '-') return 0;
+            if (cpf[idx] != '-') return 0;
         } else {
-            if (!isdigit((unsigned char)s[idx])) return 0;
+            if (!isdigit((unsigned char)cpf[idx])) return 0;
         }
     }
     return 1;
@@ -38,12 +40,12 @@ void processaCliente(Campo campo) {
             do {
                 printf("\nDigite o nome do cliente: ");
 
-                if (scanf(" %255[^\n]", cliente[i].nome) != 1) {
+                if (scanf(" %255[^\n]", cliente[i].nome_Cliente) != 1) {
                     puts("Entrada inv�lida. Tente novamente.");
                     continue;
                 }
 
-                size_t len = strlen(cliente[i].nome);
+                size_t len = strlen(cliente[i].nome_Cliente);
                 if (len == 0) {
                     printf("\nNome n�o pode ser vazio!\n\n");
                     continue;
@@ -56,9 +58,9 @@ void processaCliente(Campo campo) {
             loop = 1;
             do {
                 printf("Digite o CPF do cliente: ");
-                scanf(" %30[^\n]", cliente[i].cpf);
+                scanf(" %30[^\n]", cliente[i].cpf_Cliente);
 
-                if (!validaCpf(cliente[i].cpf)) {
+                if (!validaCpf(cliente[i].cpf_Cliente)) {
                     printf("\nCPF deve ter o formato 000.000.000-00!\n\n");
                     continue;
                 }
@@ -70,9 +72,9 @@ void processaCliente(Campo campo) {
             loop = 1;
             do {
                 printf("Digite a idade do cliente: ");
-                scanf("%i", &cliente[i].idade);
+                scanf("%i", &cliente[i].idade_Cliente);
 
-                if (cliente[i].idade <= 0) {
+                if (cliente[i].idade_Cliente <= 0) {
                     printf("\nIdade deve ser maior que zero!\n\n");
                     continue;
                 }
@@ -95,11 +97,11 @@ int cadastraCliente(void) {
         processaCliente(CPF);
         processaCliente(IDADE);
 
-        salvarDados("clientes.csv", &cliente[i]);
+        salvarDados(CLIENTES, &cliente[i]);
 
         i++;
 
-        printf("\nCadastrar novo cliente? (S/N): ");
+        printf("\nCadastrar novo cliente? (S|N): ");
         scanf(" %c", &maisClientes);
     }
 
