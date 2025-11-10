@@ -2,3 +2,6 @@ main.exe
 menu.h.gch
 cadastra-cliente.h.gch
 salvar-dados.h.gch
+clientes.csv
+produtos.csv
+pedidos.csv

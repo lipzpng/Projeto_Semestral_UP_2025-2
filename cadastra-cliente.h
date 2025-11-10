@@ -1,18 +1,16 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
-#include "salvar-dados.h"
 
 #define NUM_CLIENTE 10
 
 typedef struct{
-    int id_Cliente;
-    char nome_Cliente[256]; // 255 chars + '\0'
-    char cpf_Cliente[15]; // "000.000.000-00" -> 14 + '\0'
-    int idade_Cliente;
-    char ativo_Cliente; // 'S'|'N'
+    int id;
+    char nome[256]; // 255 chars + '\0'
+    char cpf[15]; // "000.000.000-00" -> 14 + '\0'
+    int idade;
+    char ativo; // 'S'|'N'
 }Cliente;
-
 Cliente cliente[NUM_CLIENTE];
 
 int i = 0, loop = 1;
@@ -40,12 +38,12 @@ void processaCliente(Campo campo) {
             do {
                 printf("\nDigite o nome do cliente: ");
 
-                if (scanf(" %255[^\n]", cliente[i].nome_Cliente) != 1) {
+                if (scanf(" %255[^\n]", cliente[i].nome) != 1) {
                     puts("Entrada inv�lida. Tente novamente.");
                     continue;
                 }
 
-                size_t len = strlen(cliente[i].nome_Cliente);
+                size_t len = strlen(cliente[i].nome);
                 if (len == 0) {
                     printf("\nNome n�o pode ser vazio!\n\n");
                     continue;
@@ -58,9 +56,9 @@ void processaCliente(Campo campo) {
             loop = 1;
             do {
                 printf("Digite o CPF do cliente: ");
-                scanf(" %30[^\n]", cliente[i].cpf_Cliente);
+                scanf(" %14[^\n]", cliente[i].cpf);
 
-                if (!validaCpf(cliente[i].cpf_Cliente)) {
+                if (!validaCpf(cliente[i].cpf)) {
                     printf("\nCPF deve ter o formato 000.000.000-00!\n\n");
                     continue;
                 }
@@ -72,9 +70,9 @@ void processaCliente(Campo campo) {
             loop = 1;
             do {
                 printf("Digite a idade do cliente: ");
-                scanf("%i", &cliente[i].idade_Cliente);
+                scanf("%i", &cliente[i].idade);
 
-                if (cliente[i].idade_Cliente <= 0) {
+                if (cliente[i].idade <= 0) {
                     printf("\nIdade deve ser maior que zero!\n\n");
                     continue;
                 }
@@ -84,7 +82,47 @@ void processaCliente(Campo campo) {
     }
 }
 
-int cadastraCliente(void) {
+int salvarDados() {
+
+    FILE *arqv = fopen("clientes.csv", "a"); // cria se não existir
+    if (!arqv) {
+        perror("Erro ao abrir/criar arquivo");
+        return 0;
+    }
+    
+    char *linha = NULL;
+
+    // Monta dinamicamente a linha "nome;cpf;idade\n"
+    const size_t tamNome = strlen(cliente[i].nome); // pega o tamanho do nome
+    const size_t tamCpf  = strlen(cliente[i].cpf);
+
+    // Converte o número da idade em string e descobre quantos caracteres ela tem.
+    char idadeBuffer[16]; // Buffer para transferir a idade INT para idade CHAR
+    const int idadeLengh = snprintf(idadeBuffer, sizeof(idadeBuffer), "%d", cliente[i].idade); // snprintf() escrever o valor int para char no buffer. Retorna o numero de caracteres inseridos sem contar o \0.
+
+    //                                ;            ;                       \n  \0
+    const size_t tamLinha = tamNome + 1 + tamCpf + 1 + (size_t)idadeLengh + 1 + 1; // Calcula o tamanho total da linha que será gravada
+
+    linha = (char *)malloc(tamLinha);
+    if (!linha) {
+        perror("Erro ao alocar memória");
+        fclose(arqv);
+        return 0;
+    }
+
+    snprintf(linha, tamLinha, "%s;%s;%d\n",
+             cliente[i].nome, cliente[i].cpf, cliente[i].idade);
+
+    if (fputs(linha, arqv) == EOF) {
+        perror("Erro ao escrever no arquivo");
+    }
+    free(linha);
+    fclose(arqv);
+
+    return 1;
+}
+
+int cadastraCliente() {
     char maisClientes = 'S';
 
     while ((maisClientes == 'S' || maisClientes == 's')) {
@@ -97,7 +135,7 @@ int cadastraCliente(void) {
         processaCliente(CPF);
         processaCliente(IDADE);
 
-        salvarDados(CLIENTES, &cliente[i]);
+        salvarDados();
 
         i++;
 

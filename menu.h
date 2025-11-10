@@ -15,7 +15,7 @@ void menu(){
         puts("4 - Desativar cliente");
         puts("5 - Registrar compra");
         puts("6 - Sair da loja");
-        printf("\nDigite a opção desejada: ");
+        printf("\nDigite a opï¿½ï¿½o desejada: ");
         scanf("%d", &opcao);
 
         switch (opcao) {
@@ -39,7 +39,7 @@ void menu(){
             sleep(2);
             break;
         default:
-            printf("\nOpção inválida, escolha entre 1 e 6!\n");
+            printf("\nOpï¿½ï¿½o invï¿½lida, escolha entre 1 e 6!\n");
             sleep(3);
             break;
         }
