@@ -1,18 +1,22 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include "cadastra-cliente.h"
+#include "cadastrar-cliente.h"
+#include "listar-cliente.h"
+#include "consultar-cliente.h"
+#include "inativar-cliente.h"
+#include "pedidos.h"
 
 void menu(){
     int opcao;
 
     do {
     	system("cls"); // limpa a tela
-        puts("*=*=*=*=*=MENU LOJA DE JOGOS=*=*=*=*=*");
+        puts("---- MENU LOJA DE JOGOS ----");
         puts("1 - Cadastrar cliente ");
         puts("2 - Listar clientes");
         puts("3 - Consultar clientes");
-        puts("4 - Desativar cliente");
+        puts("4 - Inativar cliente");
         puts("5 - Registrar compra");
         puts("6 - Sair da loja");
         printf("\nDigite a op��o desejada: ");
@@ -23,16 +27,16 @@ void menu(){
             cadastraCliente();
             break;
         case 2:
-            // funcao listagem
+            listarCliente();
             break;
         case 3:
-            // funcao consulta
+            consultarCliente();
             break;
         case 4:
-            // funcao desativação
+            inativarCliente();
             break;
         case 5:
-            // funcao registro
+            registrarPedido();
             break;
         case 6:
             printf("\nDesligando sistema...");
