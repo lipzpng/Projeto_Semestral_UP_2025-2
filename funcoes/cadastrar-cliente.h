@@ -84,7 +84,15 @@ void processaCliente(Campo campo) {
 
 int salvarDados() {
 
-    FILE *arqv = fopen("clientes.csv", "a"); // cria se não existir
+    int cabecalho = 0;
+    FILE *f = fopen("dados/clientes.csv", "r");
+    if (f == NULL) {
+        cabecalho = 1;
+    } else {
+        fclose(f);
+    }
+    
+    FILE *arqv = fopen("dados/clientes.csv", "a"); // cria se nÃ£o existir
     if (!arqv) {
         perror("Erro ao abrir/criar arquivo");
         return 0;
@@ -92,7 +100,8 @@ int salvarDados() {
     
     char *linha = NULL;
 
-    // Monta dinamicamente a linha "nome;cpf;idade\n"
+    // Monta dinamicamente a linha "id;nome;cpf;idade;S\n"
+    const size_t tamId   = 12;  // espaÃ§o suficiente p/ int convertido em texto
     const size_t tamNome = strlen(cliente[i].nome); // pega o tamanho do nome
     const size_t tamCpf  = strlen(cliente[i].cpf);
 
@@ -100,8 +109,21 @@ int salvarDados() {
     char idadeBuffer[16]; // Buffer para transferir a idade INT para idade CHAR
     const int idadeLengh = snprintf(idadeBuffer, sizeof(idadeBuffer), "%d", cliente[i].idade); // snprintf() escrever o valor int para char no buffer. Retorna o numero de caracteres inseridos sem contar o \0.
 
-    //                                ;            ;                       \n  \0
-    const size_t tamLinha = tamNome + 1 + tamCpf + 1 + (size_t)idadeLengh + 1 + 1; // Calcula o tamanho total da linha que será gravada
+    // Converte ID para string
+    char idBuffer[16];
+    const int idLength = snprintf(idBuffer, sizeof(idBuffer), "%d", cliente[i].id);
+
+    // Flag de ativo
+    char ativo = 'S';
+
+    // Calcula o tamanho total da linha que serÃ¡ gravada
+    // id; nome; cpf; idade; flag\n\0
+    const size_t tamLinha =
+        idLength + 1 +
+        tamNome + 1 +
+        tamCpf + 1 +
+        idadeLengh + 1 +
+        1 + 1;
 
     linha = (char *)malloc(tamLinha);
     if (!linha) {
@@ -110,16 +132,51 @@ int salvarDados() {
         return 0;
     }
 
-    snprintf(linha, tamLinha, "%s;%s;%d\n",
-             cliente[i].nome, cliente[i].cpf, cliente[i].idade);
+    if (cabecalho) {
+        fprintf(arqv, "Id; Nome; Cpf; Idade; Ativo\n");
+    }
+
+    snprintf(linha, tamLinha, "%s;%s;%s;%d;%c\n",
+            idBuffer, cliente[i].nome, cliente[i].cpf, cliente[i].idade, ativo);
 
     if (fputs(linha, arqv) == EOF) {
         perror("Erro ao escrever no arquivo");
     }
+    
     free(linha);
     fclose(arqv);
 
     return 1;
+}
+
+int retornaUltimoId() {
+    FILE *arquivo = fopen("dados/clientes.csv", "r");
+    if (!arquivo) {
+        printf("Erro ao abrir o arquivo.\n");
+        return 0;
+    }
+
+    char linha[256];
+    int maiorId = 0;
+    int idAtual;
+
+    // Lê e descarta o cabeçalho
+    fgets(linha, sizeof(linha), arquivo);
+
+    // Lê as linhas seguintes
+    while (fgets(linha, sizeof(linha), arquivo)) {
+        // Extrai o ID antes do primeiro ';'
+        char *token = strtok(linha, ";");
+        if (token != NULL) {
+            idAtual = atoi(token);
+            if (idAtual > maiorId) {
+                maiorId = idAtual;
+            }
+        }
+    }
+
+    fclose(arquivo);
+    return maiorId;
 }
 
 int cadastraCliente() {
@@ -130,6 +187,9 @@ int cadastraCliente() {
             printf("\n\nLimite de %i clientes atingido.", NUM_CLIENTE);
             break;
         }
+        
+        int id = retornaUltimoId();
+        cliente[i].id = id + 1;
 
         processaCliente(NOME);
         processaCliente(CPF);
